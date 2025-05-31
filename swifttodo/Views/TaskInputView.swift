@@ -19,39 +19,28 @@ struct TaskInputView: View {
     
     var body: some View {
         VStack(spacing: 10) {
-            HStack {
-                ZStack(alignment: .leading) {
-                    if newTaskTitle.isEmpty {
-                        Text("Add a new task...")
-                            .foregroundColor(.gray.opacity(0.8))
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 14)
-                            .font(.system(size: 16, weight: .medium, design: .rounded))
-                    }
-                    TextField("", text: $newTaskTitle)
-                        .tint(Color.orange)
-                        .padding()
-                        .background(
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(Color.white.opacity(0.1))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.orange.opacity(0.3), lineWidth: 1)
-                                )
-                        )
-                        .foregroundColor(.white)
+            ZStack(alignment: .leading) {
+                if newTaskTitle.isEmpty {
+                    Text("Add a new task...")
+                        .foregroundColor(.gray.opacity(0.8))
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 14)
                         .font(.system(size: 16, weight: .medium, design: .rounded))
                 }
-                
-                Button(action: {
-                    let finalDueDate = hasDueDate ? dueDate : nil
-                    onAddTask(selectedCategory, finalDueDate, selectedPriority)
-                }) {
-                    Image(systemName: "plus.circle.fill")
-                        .foregroundColor(.orange)
-                        .font(.system(size: 24))
-                }
-                .padding(.leading, 5)
+                TextField("", text: $newTaskTitle)
+                .keyboardType(.default) // Ensure standard keyboard
+                .tint(Color.orange)
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color.white.opacity(0.1))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.orange.opacity(0.3), lineWidth: 1)
+                        )
+                )
+                .foregroundColor(.white)
+                .font(.system(size: 16, weight: .medium, design: .rounded))
             }
             
             HStack(spacing: 10) {
@@ -77,6 +66,7 @@ struct TaskInputView: View {
                         .font(.system(size: 14, weight: .medium, design: .rounded))
                         .padding(.vertical, 6)
                         .padding(.horizontal, 12)
+                        .frame(maxWidth: .infinity, alignment: .center)
                         .background(
                             RoundedRectangle(cornerRadius: 8)
                                 .fill(Color.white.opacity(0.1))
@@ -105,13 +95,14 @@ struct TaskInputView: View {
                         .font(.system(size: 14, weight: .medium, design: .rounded))
                         .padding(.vertical, 6)
                         .padding(.horizontal, 12)
+                        .frame(maxWidth: .infinity, alignment: .center)
                         .background(
                             RoundedRectangle(cornerRadius: 8)
                                 .fill(Color.white.opacity(0.1))
                         )
                 }
             }
-            .padding(.horizontal)
+            .frame(maxWidth: .infinity)
             
             // Due Date Toggle and Picker
             Toggle("Set Due Date", isOn: $hasDueDate)
@@ -120,16 +111,34 @@ struct TaskInputView: View {
                 .tint(Color.orange)
             
             if hasDueDate {
-                DatePicker("Due Date",
-                           selection: $dueDate,
-                           displayedComponents: [.date, .hourAndMinute])
-                    .tint(Color.orange)
-                    .foregroundColor(.white)
-                    .font(.system(size: 14, weight: .medium, design: .rounded))
-                    .datePickerStyle(.compact)
-                    .colorScheme(.dark)
-                    .padding(.horizontal)
+                HStack(spacing: 10) {
+                    Text("Due Date")
+                        .foregroundColor(.white.opacity(0.6))
+                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                    Spacer()
+                    DatePicker("", selection: $dueDate, displayedComponents: [.date, .hourAndMinute])
+                        .tint(Color.orange)
+                        .foregroundColor(.white)
+                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .datePickerStyle(.compact)
+                        .colorScheme(.dark)
+                }
             }
+            
+            // Add Task Button at the Bottom
+            Button(action: {
+                let finalDueDate = hasDueDate ? dueDate : nil
+                onAddTask(selectedCategory, finalDueDate, selectedPriority)
+            }) {
+                Text("Add Task")
+                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(Color.orange)
+                    .cornerRadius(10)
+            }
+            .padding(.top, 10)
         }
         .padding(.horizontal)
     }
