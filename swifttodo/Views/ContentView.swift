@@ -51,23 +51,41 @@ struct ContentView: View {
     
     var body: some View {
         ZStack {
-            Color.black.opacity(0.9)
+            Color(red: 26/255, green: 26/255, blue: 26/255) // #1a1a1a
                 .ignoresSafeArea()
             
             VStack(spacing: 20) {
                 HeaderView()
                 
-                TaskInputView(
-                    newTaskTitle: $newTaskTitle,
-                    onAddTask: { category, dueDate, priority in
-                        if !newTaskTitle.isEmpty {
-                            withAnimation(.easeInOut) {
-                                taskStore.addTask(newTaskTitle, category: category, dueDate: dueDate, priority: priority)
-                                newTaskTitle = ""
+                // Button to trigger bottom sheet (only the "+" icon)
+                Button(action: { showingAddTask = true }) {
+                    Image(systemName: "plus.circle.fill")
+                        .foregroundColor(.orange)
+                        .font(.system(size: 24))
+                }
+                .padding(.horizontal)
+                .sheet(isPresented: $showingAddTask) {
+                    VStack(alignment: .leading) {
+                        TaskInputView(
+                            newTaskTitle: $newTaskTitle,
+                            onAddTask: { category, dueDate, priority in
+                                if !newTaskTitle.isEmpty {
+                                    withAnimation(.easeInOut) {
+                                        taskStore.addTask(newTaskTitle, category: category, dueDate: dueDate, priority: priority)
+                                        newTaskTitle = ""
+                                        showingAddTask = false // Dismiss sheet after adding
+                                    }
+                                }
                             }
-                        }
+                        )
+                        Spacer()
                     }
-                )
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 32)
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.visible)
+                    .presentationBackground(Color(red: 26/255, green: 26/255, blue: 26/255)) // #1a1a1a
+                }
                 
                 // Search and Sort Controls
                 HStack(spacing: 10) {
