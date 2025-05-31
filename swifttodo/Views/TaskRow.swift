@@ -101,6 +101,6 @@ struct TaskRow_Previews: PreviewProvider {
             onToggle: {},
             onDelete: {}
         )
-        .background(Color.black.opacity(0.9))
+        .background(Color(red: 26/255, green: 26/255, blue: 26/255))
     }
 }

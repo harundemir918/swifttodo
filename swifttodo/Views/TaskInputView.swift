@@ -138,6 +138,6 @@ struct TaskInputView: View {
 struct TaskInputView_Previews: PreviewProvider {
     static var previews: some View {
         TaskInputView(newTaskTitle: .constant(""), onAddTask: { _, _, _ in })
-            .background(Color.black.opacity(0.9))
+            .background(Color(red: 26/255, green: 26/255, blue: 26/255))
     }
 }

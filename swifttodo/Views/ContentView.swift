@@ -8,46 +8,9 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var taskStore = TaskStore()
+    @StateObject private var viewModel = TaskViewModel()
     @State private var newTaskTitle = ""
     @State private var showingAddTask = false
-    @State private var selectedCategory = "All"
-    @State private var searchText = ""
-    @State private var sortOption: SortOption = .dueDate
-    
-    enum SortOption {
-        case dueDate
-        case priority
-        case title
-    }
-    
-    var filteredTasks: [Task] {
-        var tasks = taskStore.tasks
-        
-        // Filter by category
-        if selectedCategory != "All" {
-            tasks = tasks.filter { $0.category == selectedCategory }
-        }
-        
-        // Filter by search text
-        if !searchText.isEmpty {
-            tasks = tasks.filter { $0.title.lowercased().contains(searchText.lowercased()) }
-        }
-        
-        // Sort based on selected option
-        switch sortOption {
-        case .dueDate:
-            return tasks.sorted { ($0.dueDate ?? Date.distantFuture) < ($1.dueDate ?? Date.distantFuture) }
-        case .priority:
-            return tasks.sorted { $0.priority.sortIndex < $1.priority.sortIndex }
-        case .title:
-            return tasks.sorted { $0.title < $1.title }
-        }
-    }
-    
-    var remainingTasks: Int {
-        filteredTasks.filter { !$0.isCompleted }.count
-    }
     
     var body: some View {
         ZStack {
@@ -56,41 +19,18 @@ struct ContentView: View {
             
             VStack(spacing: 20) {
                 HeaderView()
-                .padding(.horizontal)
-                .sheet(isPresented: $showingAddTask) {
-                    VStack(alignment: .leading) {
-                        TaskInputView(
-                            newTaskTitle: $newTaskTitle,
-                            onAddTask: { category, dueDate, priority in
-                                if !newTaskTitle.isEmpty {
-                                    withAnimation(.easeInOut) {
-                                        taskStore.addTask(newTaskTitle, category: category, dueDate: dueDate, priority: priority)
-                                        newTaskTitle = ""
-                                        showingAddTask = false // Dismiss sheet after adding
-                                    }
-                                }
-                            }
-                        )
-                        Spacer()
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 32)
-                    .presentationDetents([.medium, .large])
-                    .presentationDragIndicator(.visible)
-                    .presentationBackground(Color(red: 26/255, green: 26/255, blue: 26/255)) // #1a1a1a
-                }
                 
                 // Search and Sort Controls
                 HStack(spacing: 10) {
                     ZStack(alignment: .leading) {
-                        if searchText.isEmpty {
+                        if viewModel.searchText.isEmpty {
                             Text("Search tasks...")
                                 .foregroundColor(.gray.opacity(0.8))
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 8)
                                 .font(.system(size: 14, weight: .medium, design: .rounded))
                         }
-                        TextField("", text: $searchText)
+                        TextField("", text: $viewModel.searchText)
                             .tint(Color.orange)
                             .padding()
                             .background(
@@ -106,17 +46,17 @@ struct ContentView: View {
                     }
                     
                     Menu {
-                        Button(action: { sortOption = .dueDate }) {
+                        Button(action: { viewModel.sortOption = .dueDate }) {
                             Text("Due Date")
                         }
-                        Button(action: { sortOption = .priority }) {
+                        Button(action: { viewModel.sortOption = .priority }) {
                             Text("Priority")
                         }
-                        Button(action: { sortOption = .title }) {
+                        Button(action: { viewModel.sortOption = .title }) {
                             Text("Title")
                         }
                     } label: {
-                        Text("Sort: \(sortOption == .dueDate ? "Due Date" : sortOption == .priority ? "Priority" : "Title")")
+                        Text("Sort: \(viewModel.sortOption.rawValue)")
                             .foregroundColor(.orange)
                             .font(.system(size: 14, weight: .medium, design: .rounded))
                             .padding(.vertical, 6)
@@ -129,32 +69,31 @@ struct ContentView: View {
                 }
                 .padding(.horizontal)
                 
-                CategoryFilterView(selectedCategory: $selectedCategory)
+                CategoryFilterView(selectedCategory: $viewModel.selectedCategory)
                 
                 ScrollView {
                     LazyVStack(spacing: 10) {
-                        ForEach(filteredTasks) { task in
+                        ForEach(viewModel.filteredTasks) { task in
                             TaskRow(task: task, onToggle: {
                                 withAnimation(.easeInOut) {
-                                    taskStore.toggleCompletion(for: task)
+                                    viewModel.toggleCompletion(for: task)
                                 }
                             }, onDelete: {
                                 withAnimation(.easeInOut) {
-                                    if let index = taskStore.tasks.firstIndex(where: { $0.id == task.id }) {
-                                        taskStore.tasks.remove(at: index)
-                                    }
+                                    viewModel.deleteTask(task)
                                 }
                             })
                         }
                     }
                 }
                 
-                Text("Remaining: \(remainingTasks) tasks")
+                Text("Remaining: \(viewModel.remainingTasks) tasks")
                     .font(.system(size: 14, weight: .semibold, design: .rounded))
                     .foregroundColor(.orange)
                     .padding(.horizontal)
                     .padding(.bottom, 10)
                 
+                // Add New Task Button at the bottom
                 Button(action: { showingAddTask = true }) {
                     Text("Add New Task")
                         .font(.headline)
@@ -169,6 +108,28 @@ struct ContentView: View {
                 
                 Spacer()
             }
+        }
+        .sheet(isPresented: $showingAddTask) {
+            VStack(alignment: .leading) {
+                TaskInputView(
+                    newTaskTitle: $newTaskTitle,
+                    onAddTask: { category, dueDate, priority in
+                        if !newTaskTitle.isEmpty {
+                            withAnimation(.easeInOut) {
+                                viewModel.addTask(title: newTaskTitle, category: category, dueDate: dueDate, priority: priority)
+                                newTaskTitle = ""
+                                showingAddTask = false // Dismiss sheet after adding
+                            }
+                        }
+                    }
+                )
+                Spacer()
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 32)
+            .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.visible)
+            .presentationBackground(Color(red: 26/255, green: 26/255, blue: 26/255)) // #1a1a1a
         }
     }
 }
