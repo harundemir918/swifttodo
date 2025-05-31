@@ -11,6 +11,7 @@ struct TaskRow: View {
     let task: Task
     let onToggle: () -> Void
     let onDelete: () -> Void
+    @State private var showingDeleteConfirmation = false
     
     var body: some View {
         HStack(spacing: 12) {
@@ -30,7 +31,7 @@ struct TaskRow: View {
             Spacer()
             
             // Delete button
-            Button(action: onDelete) {
+            Button(action: { showingDeleteConfirmation = true }) {
                 Image(systemName: "trash")
                     .foregroundColor(.white.opacity(0.6))
             }
@@ -45,6 +46,16 @@ struct TaskRow: View {
                 )
         )
         .padding(.horizontal)
+        .confirmationDialog("Are you sure?", isPresented: $showingDeleteConfirmation) {
+            Button("Delete", role: .destructive) {
+                withAnimation(.easeInOut) {
+                    onDelete()
+                }
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("This action cannot be undone.")
+        }
     }
 }
 
