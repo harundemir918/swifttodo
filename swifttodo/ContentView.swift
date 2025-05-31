@@ -68,6 +68,7 @@ struct ContentView: View {
                                 .font(.system(size: 16, weight: .medium, design: .rounded))
                         }
                         TextField("", text: $newTaskTitle)
+                            .tint(Color.orange) // Set cursor color to orange
                             .padding()
                             .background(
                                 RoundedRectangle(cornerRadius: 10)
