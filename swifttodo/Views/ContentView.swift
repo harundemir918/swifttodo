@@ -56,13 +56,6 @@ struct ContentView: View {
             
             VStack(spacing: 20) {
                 HeaderView()
-                
-                // Button to trigger bottom sheet (only the "+" icon)
-                Button(action: { showingAddTask = true }) {
-                    Image(systemName: "plus.circle.fill")
-                        .foregroundColor(.orange)
-                        .font(.system(size: 24))
-                }
                 .padding(.horizontal)
                 .sheet(isPresented: $showingAddTask) {
                     VStack(alignment: .leading) {
@@ -161,6 +154,18 @@ struct ContentView: View {
                     .foregroundColor(.orange)
                     .padding(.horizontal)
                     .padding(.bottom, 10)
+                
+                Button(action: { showingAddTask = true }) {
+                    Text("Add New Task")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.orange)
+                        .cornerRadius(12)
+                        .padding(.horizontal)
+                }
+                .padding(.bottom, 10)
                 
                 Spacer()
             }
