@@ -22,11 +22,16 @@ struct TaskRow: View {
                     .font(.system(size: 20))
             }
             
-            // Task title
-            Text(task.title)
-                .foregroundColor(task.isCompleted ? .gray : .white)
-                .strikethrough(task.isCompleted, color: .white.opacity(0.4))
-                .font(.system(size: 16, weight: .medium, design: .rounded))
+            // Task title and category
+            VStack(alignment: .leading, spacing: 4) {
+                Text(task.title)
+                    .foregroundColor(task.isCompleted ? .gray : .white)
+                    .strikethrough(task.isCompleted, color: .white.opacity(0.4))
+                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                Text(task.category)
+                    .foregroundColor(.white.opacity(0.6))
+                    .font(.system(size: 12, weight: .regular, design: .rounded))
+            }
             
             Spacer()
             
@@ -62,7 +67,7 @@ struct TaskRow: View {
 struct TaskRow_Previews: PreviewProvider {
     static var previews: some View {
         TaskRow(
-            task: Task(title: "Sample Task"),
+            task: Task(title: "Sample Task", category: "Work"),
             onToggle: {},
             onDelete: {}
         )

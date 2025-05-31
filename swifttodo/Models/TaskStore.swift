@@ -36,10 +36,10 @@ class TaskStore: ObservableObject {
     }
     
     // Add a new task
-    func addTask(_ title: String) {
+    func addTask(_ title: String, category: String = "Personal") {
         let trimmedTitle = title.trimmingCharacters(in: .whitespaces)
         guard !trimmedTitle.isEmpty, !tasks.contains(where: { $0.title == trimmedTitle }) else { return }
-        let newTask = Task(title: trimmedTitle)
+        let newTask = Task(title: trimmedTitle, category: category)
         tasks.append(newTask)
     }
     

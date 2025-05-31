@@ -8,7 +8,15 @@
 import Foundation
 
 struct Task: Identifiable, Codable {
-    let id = UUID() // Unique identifier for each task
+    let id: UUID
     var title: String
-    var isCompleted: Bool = false
+    var isCompleted: Bool
+    var category: String
+    
+    init(id: UUID = UUID(), title: String, isCompleted: Bool = false, category: String = "Personal") {
+        self.id = id
+        self.title = title
+        self.isCompleted = isCompleted
+        self.category = category
+    }
 }
