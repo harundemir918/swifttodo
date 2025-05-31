@@ -13,12 +13,20 @@ struct Task: Identifiable, Codable {
     var isCompleted: Bool
     var category: String
     var dueDate: Date?
+    var priority: Priority
     
-    init(id: UUID = UUID(), title: String, isCompleted: Bool = false, category: String = "Personal", dueDate: Date? = nil) {
+    enum Priority: String, Codable, CaseIterable {
+        case low = "Low"
+        case medium = "Medium"
+        case high = "High"
+    }
+    
+    init(id: UUID = UUID(), title: String, isCompleted: Bool = false, category: String = "Personal", dueDate: Date? = nil, priority: Priority = .medium) {
         self.id = id
         self.title = title
         self.isCompleted = isCompleted
         self.category = category
         self.dueDate = dueDate
+        self.priority = priority
     }
 }

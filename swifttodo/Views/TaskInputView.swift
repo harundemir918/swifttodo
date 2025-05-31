@@ -9,10 +9,11 @@ import SwiftUI
 
 struct TaskInputView: View {
     @Binding var newTaskTitle: String
-    let onAddTask: (String, Date?) -> Void
+    let onAddTask: (String, Date?, Task.Priority) -> Void
     @State private var selectedCategory: String = "Personal"
     @State private var hasDueDate: Bool = false
     @State private var dueDate: Date = Date()
+    @State private var selectedPriority: Task.Priority = .medium
     
     private let categories = ["Work", "Personal", "Shopping", "Health", "Home", "Finance", "Study", "Travel", "Hobbies", "Events"]
     
@@ -44,7 +45,7 @@ struct TaskInputView: View {
                 
                 Button(action: {
                     let finalDueDate = hasDueDate ? dueDate : nil
-                    onAddTask(selectedCategory, finalDueDate)
+                    onAddTask(selectedCategory, finalDueDate, selectedPriority)
                 }) {
                     Image(systemName: "plus.circle.fill")
                         .foregroundColor(.orange)
@@ -53,45 +54,76 @@ struct TaskInputView: View {
                 .padding(.leading, 5)
             }
             
-            Menu {
-                ForEach(categories, id: \.self) { category in
-                    Button(action: {
-                        selectedCategory = category
-                    }) {
-                        HStack {
-                            Text(category)
-                                .foregroundColor(.white)
-                            if category == selectedCategory {
-                                Image(systemName: "checkmark")
-                                    .foregroundColor(.orange)
-                                    .padding(.leading, 5)
+            HStack(spacing: 10) {
+                Menu {
+                    ForEach(categories, id: \.self) { category in
+                        Button(action: {
+                            selectedCategory = category
+                        }) {
+                            HStack {
+                                Text(category)
+                                    .foregroundColor(.white)
+                                if category == selectedCategory {
+                                    Image(systemName: "checkmark")
+                                        .foregroundColor(.orange)
+                                        .padding(.leading, 5)
+                                }
                             }
                         }
                     }
+                } label: {
+                    Text("Category: \(selectedCategory)")
+                        .foregroundColor(.orange)
+                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .padding(.vertical, 6)
+                        .padding(.horizontal, 12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.white.opacity(0.1))
+                        )
                 }
-            } label: {
-                Text("Category: \(selectedCategory)")
-                    .foregroundColor(.orange)
-                    .font(.system(size: 14, weight: .medium, design: .rounded))
-                    .padding(.vertical, 6)
-                    .padding(.horizontal, 12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.white.opacity(0.1))
-                    )
+                
+                Menu {
+                    ForEach(Task.Priority.allCases, id: \.self) { priority in
+                        Button(action: {
+                            selectedPriority = priority
+                        }) {
+                            HStack {
+                                Text(priority.rawValue)
+                                    .foregroundColor(.white)
+                                if priority == selectedPriority {
+                                    Image(systemName: "checkmark")
+                                        .foregroundColor(.orange)
+                                        .padding(.leading, 5)
+                                }
+                            }
+                        }
+                    }
+                } label: {
+                    Text("Priority: \(selectedPriority.rawValue)")
+                        .foregroundColor(.orange)
+                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .padding(.vertical, 6)
+                        .padding(.horizontal, 12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.white.opacity(0.1))
+                        )
+                }
             }
+            .padding(.horizontal)
             
             // Due Date Toggle and Picker
             Toggle("Set Due Date", isOn: $hasDueDate)
                 .foregroundColor(.white)
                 .font(.system(size: 14, weight: .medium, design: .rounded))
-                .tint(Color.orange) // Set switch color to orange
+                .tint(Color.orange)
             
             if hasDueDate {
                 DatePicker("Due Date",
                            selection: $dueDate,
                            displayedComponents: [.date, .hourAndMinute])
-                    .tint(Color.orange) // Set picker selection color to orange
+                    .tint(Color.orange)
                     .foregroundColor(.white)
                     .font(.system(size: 14, weight: .medium, design: .rounded))
                     .datePickerStyle(.compact)
@@ -105,7 +137,7 @@ struct TaskInputView: View {
 
 struct TaskInputView_Previews: PreviewProvider {
     static var previews: some View {
-        TaskInputView(newTaskTitle: .constant(""), onAddTask: { _, _ in })
+        TaskInputView(newTaskTitle: .constant(""), onAddTask: { _, _, _ in })
             .background(Color.black.opacity(0.9))
     }
 }

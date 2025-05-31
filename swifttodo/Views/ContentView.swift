@@ -34,10 +34,10 @@ struct ContentView: View {
                 
                 TaskInputView(
                     newTaskTitle: $newTaskTitle,
-                    onAddTask: { category, dueDate in
+                    onAddTask: { category, dueDate, priority in
                         if !newTaskTitle.isEmpty {
                             withAnimation(.easeInOut) {
-                                taskStore.addTask(newTaskTitle, category: category, dueDate: dueDate)
+                                taskStore.addTask(newTaskTitle, category: category, dueDate: dueDate, priority: priority)
                                 newTaskTitle = ""
                             }
                         }

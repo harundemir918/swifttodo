@@ -25,6 +25,14 @@ struct TaskRow: View {
         return dueDate < Date() && !task.isCompleted
     }
     
+    var priorityColor: Color {
+        switch task.priority {
+        case .low: return .green
+        case .medium: return .yellow
+        case .high: return .red
+        }
+    }
+    
     var body: some View {
         HStack(spacing: 12) {
             // Checkbox for completion
@@ -34,12 +42,17 @@ struct TaskRow: View {
                     .font(.system(size: 20))
             }
             
-            // Task title, category, and due date
+            // Task title, category, due date, and priority indicator
             VStack(alignment: .leading, spacing: 4) {
-                Text(task.title)
-                    .foregroundColor(task.isCompleted ? .gray : .white)
-                    .strikethrough(task.isCompleted, color: .white.opacity(0.4))
-                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                HStack(spacing: 6) {
+                    Circle()
+                        .fill(priorityColor)
+                        .frame(width: 8, height: 8)
+                    Text(task.title)
+                        .foregroundColor(task.isCompleted ? .gray : .white)
+                        .strikethrough(task.isCompleted, color: .white.opacity(0.4))
+                        .font(.system(size: 16, weight: .medium, design: .rounded))
+                }
                 Text(task.category)
                     .foregroundColor(.white.opacity(0.6))
                     .font(.system(size: 12, weight: .regular, design: .rounded))
@@ -84,7 +97,7 @@ struct TaskRow: View {
 struct TaskRow_Previews: PreviewProvider {
     static var previews: some View {
         TaskRow(
-            task: Task(title: "Sample Task", category: "Work", dueDate: Date()),
+            task: Task(title: "Sample Task", category: "Work", dueDate: Date(), priority: .high),
             onToggle: {},
             onDelete: {}
         )
