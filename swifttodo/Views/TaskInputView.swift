@@ -9,8 +9,10 @@ import SwiftUI
 
 struct TaskInputView: View {
     @Binding var newTaskTitle: String
-    let onAddTask: (String) -> Void
+    let onAddTask: (String, Date?) -> Void
     @State private var selectedCategory: String = "Personal"
+    @State private var hasDueDate: Bool = false
+    @State private var dueDate: Date = Date()
     
     private let categories = ["Work", "Personal", "Shopping", "Health", "Home", "Finance", "Study", "Travel", "Hobbies", "Events"]
     
@@ -41,7 +43,8 @@ struct TaskInputView: View {
                 }
                 
                 Button(action: {
-                    onAddTask(selectedCategory)
+                    let finalDueDate = hasDueDate ? dueDate : nil
+                    onAddTask(selectedCategory, finalDueDate)
                 }) {
                     Image(systemName: "plus.circle.fill")
                         .foregroundColor(.orange)
@@ -77,7 +80,24 @@ struct TaskInputView: View {
                             .fill(Color.white.opacity(0.1))
                     )
             }
-            .padding(.horizontal)
+            
+            // Due Date Toggle and Picker
+            Toggle("Set Due Date", isOn: $hasDueDate)
+                .foregroundColor(.white)
+                .font(.system(size: 14, weight: .medium, design: .rounded))
+                .tint(Color.orange) // Set switch color to orange
+            
+            if hasDueDate {
+                DatePicker("Due Date",
+                           selection: $dueDate,
+                           displayedComponents: [.date, .hourAndMinute])
+                    .tint(Color.orange) // Set picker selection color to orange
+                    .foregroundColor(.white)
+                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .datePickerStyle(.compact)
+                    .colorScheme(.dark)
+                    .padding(.horizontal)
+            }
         }
         .padding(.horizontal)
     }
@@ -85,7 +105,7 @@ struct TaskInputView: View {
 
 struct TaskInputView_Previews: PreviewProvider {
     static var previews: some View {
-        TaskInputView(newTaskTitle: .constant(""), onAddTask: { _ in })
+        TaskInputView(newTaskTitle: .constant(""), onAddTask: { _, _ in })
             .background(Color.black.opacity(0.9))
     }
 }

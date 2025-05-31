@@ -13,6 +13,18 @@ struct TaskRow: View {
     let onDelete: () -> Void
     @State private var showingDeleteConfirmation = false
     
+    private let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter
+    }()
+    
+    var isOverdue: Bool {
+        guard let dueDate = task.dueDate else { return false }
+        return dueDate < Date() && !task.isCompleted
+    }
+    
     var body: some View {
         HStack(spacing: 12) {
             // Checkbox for completion
@@ -22,7 +34,7 @@ struct TaskRow: View {
                     .font(.system(size: 20))
             }
             
-            // Task title and category
+            // Task title, category, and due date
             VStack(alignment: .leading, spacing: 4) {
                 Text(task.title)
                     .foregroundColor(task.isCompleted ? .gray : .white)
@@ -31,6 +43,11 @@ struct TaskRow: View {
                 Text(task.category)
                     .foregroundColor(.white.opacity(0.6))
                     .font(.system(size: 12, weight: .regular, design: .rounded))
+                if let dueDate = task.dueDate {
+                    Text("Due: \(dateFormatter.string(from: dueDate))")
+                        .foregroundColor(isOverdue ? .red : .white.opacity(0.6))
+                        .font(.system(size: 12, weight: .regular, design: .rounded))
+                }
             }
             
             Spacer()
@@ -67,7 +84,7 @@ struct TaskRow: View {
 struct TaskRow_Previews: PreviewProvider {
     static var previews: some View {
         TaskRow(
-            task: Task(title: "Sample Task", category: "Work"),
+            task: Task(title: "Sample Task", category: "Work", dueDate: Date()),
             onToggle: {},
             onDelete: {}
         )
