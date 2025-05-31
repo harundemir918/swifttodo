@@ -12,12 +12,37 @@ struct ContentView: View {
     @State private var newTaskTitle = ""
     @State private var showingAddTask = false
     @State private var selectedCategory = "All"
+    @State private var searchText = ""
+    @State private var sortOption: SortOption = .dueDate
+    
+    enum SortOption {
+        case dueDate
+        case priority
+        case title
+    }
     
     var filteredTasks: [Task] {
-        if selectedCategory == "All" {
-            return taskStore.tasks
+        var tasks = taskStore.tasks
+        
+        // Filter by category
+        if selectedCategory != "All" {
+            tasks = tasks.filter { $0.category == selectedCategory }
         }
-        return taskStore.tasks.filter { $0.category == selectedCategory }
+        
+        // Filter by search text
+        if !searchText.isEmpty {
+            tasks = tasks.filter { $0.title.lowercased().contains(searchText.lowercased()) }
+        }
+        
+        // Sort based on selected option
+        switch sortOption {
+        case .dueDate:
+            return tasks.sorted { ($0.dueDate ?? Date.distantFuture) < ($1.dueDate ?? Date.distantFuture) }
+        case .priority:
+            return tasks.sorted { $0.priority.sortIndex < $1.priority.sortIndex }
+        case .title:
+            return tasks.sorted { $0.title < $1.title }
+        }
     }
     
     var remainingTasks: Int {
@@ -43,6 +68,55 @@ struct ContentView: View {
                         }
                     }
                 )
+                
+                // Search and Sort Controls
+                HStack(spacing: 10) {
+                    ZStack(alignment: .leading) {
+                        if searchText.isEmpty {
+                            Text("Search tasks...")
+                                .foregroundColor(.gray.opacity(0.8))
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .font(.system(size: 14, weight: .medium, design: .rounded))
+                        }
+                        TextField("", text: $searchText)
+                            .tint(Color.orange)
+                            .padding()
+                            .background(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(Color.white.opacity(0.1))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .stroke(Color.orange.opacity(0.3), lineWidth: 1)
+                                    )
+                            )
+                            .foregroundColor(.white)
+                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                    }
+                    
+                    Menu {
+                        Button(action: { sortOption = .dueDate }) {
+                            Text("Due Date")
+                        }
+                        Button(action: { sortOption = .priority }) {
+                            Text("Priority")
+                        }
+                        Button(action: { sortOption = .title }) {
+                            Text("Title")
+                        }
+                    } label: {
+                        Text("Sort: \(sortOption == .dueDate ? "Due Date" : sortOption == .priority ? "Priority" : "Title")")
+                            .foregroundColor(.orange)
+                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                            .padding(.vertical, 6)
+                            .padding(.horizontal, 12)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color.white.opacity(0.1))
+                            )
+                    }
+                }
+                .padding(.horizontal)
                 
                 CategoryFilterView(selectedCategory: $selectedCategory)
                 

@@ -16,9 +16,17 @@ struct Task: Identifiable, Codable {
     var priority: Priority
     
     enum Priority: String, Codable, CaseIterable {
-        case low = "Low"
-        case medium = "Medium"
         case high = "High"
+        case medium = "Medium"
+        case low = "Low"
+        
+        var sortIndex: Int {
+            switch self {
+            case .high: return 0
+            case .medium: return 1
+            case .low: return 2
+            }
+        }
     }
     
     init(id: UUID = UUID(), title: String, isCompleted: Bool = false, category: String = "Personal", dueDate: Date? = nil, priority: Priority = .medium) {
